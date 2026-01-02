@@ -1,13 +1,13 @@
-# MxAIA: Mendix AI IDE Knowledge Scout (Deep Context 6.0)
+# MxAIA: Mendix AI IDE Knowledge Scout
 
 ![Mendix Support](https://img.shields.io/badge/Mendix-10.24%2B-blue.svg)
 ![MCP](https://img.shields.io/badge/protocol-MCP-purple.svg)
 ![TypeScript](https://img.shields.io/badge/language-TypeScript-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**The ultimate AI Knowledge Gatherer for Mendix, designed to bridge the gap between Low-Code models and AI Reasoning.**
+**The "Rosetta Stone" for High-Code AI Agents working on Low-Code Platforms.**
 
-**MxAIA** transforms the Mendix Platform SDK into a high-fidelity intelligence layer. It doesn't just export metadata; it synthesizes **Developer Handbooks** that narrate the inner workings of your application, citing exact Microflow and Page names for seamless reasoning in AI-powered IDEs (Cursor, Claude Desktop, Antigravity).
+**MxAIA** linearizes Mendix applications into strict, reasoned pseudo-code. It transforms purely visual models (Microflows, Pages) into a "Developer Handbook" that AI IDEs (Cursor, Copilot, Antigravity) can natively read, understand, and debug. Use this to enable "Chat with my Codebase" for Mendix.
 
 ---
 
@@ -21,36 +21,34 @@
 
 ---
 
-## 🛠️ Installation & Portability
+### ⚡ Quick Start
 
-The **Mendix Cloud MCP Server** is designed to be highly portable. Developers can simply download this folder and paste it into the root of any Mendix project.
+#### Option A: Standalone Executable (Recommended)
+*No NodeJS installation required.*
 
-### Setup (Paste to Root Workflow)
-1.  **Download & Paste**: Copy the `mendix-cloud-mcp` folder into your Mendix project's root directory.
-    ```text
-    MyProject/
-    ├── theme/
-    ├── javasource/
-    ├── mendix-cloud-mcp/  <-- Paste folder here
-    └── ...
-    ```
-
-2.  **Install Dependencies**:
-    Navigate to the folder and install the required modules:
-    ```bash
-    cd mendix-cloud-mcp
-    npm install
-    ```
-
-3.  **Configure `.env`**:
-    Create a `.env` file inside the `mendix-cloud-mcp` folder with your credentials and the **target Project ID**:
+1.  **Download**: Grab the latest `mxaia.exe` from the [Releases](https://github.com/your-repo/releases) page.
+2.  **Paste**: Place the `.exe` file into a folder in your Mendix project root (e.g., `_DevTools/`).
+3.  **Configure**: Create a `.env` file next to the `.exe` with your credentials:
     ```env
     MENDIX_TOKEN=your_pat_here
-    MENDIX_USERNAME=your_email@domain.com
-    MENDIX_PROJECT_ID=your_mendix_app_id_uuid
+    MENDIX_USERNAME=your_email@...
+    MENDIX_PROJECT_ID=your_app_id
     ```
+4.  **Run**: Double-click `mxaia.exe` or run it from CMD.
+    ```cmd
+    mxaia.exe
+    ```
+    🎉 **Done!** Check the `export/` folder for your readable Developer Handbook.
 
-4.  **Build & Run**:
+#### Option B: From Source (For Developers)
+
+1.  **Install**:
+    Clone this repo into your Mendix project root.
+    ```bash
+    npm install
+    ```
+2.  **Configure**: Create `.env`.
+3.  **Run**:
     ```bash
     npm run build
     node dist/run_enhanced_bulk.js
@@ -81,6 +79,7 @@ Connect to Claude/Cursor using `dist/server.js`. The server exposes:
 
 ```text
 mendix-cloud-mcp/
+├── examples/             # 📂 Sample Output (See what you get!)
 ├── src/
 │   ├── server.ts         # MCP Server & Tooling
 │   ├── mappers.ts        # Robust SDK -> DTO Mapping

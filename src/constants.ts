@@ -2,19 +2,21 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
+// Use process.cwd() as the anchor for both Node and PKG execution
+// We assume the tool is run from the 'mendix-cloud-mcp' directory
+const TOOL_ROOT = process.cwd();
+
 // Load .env from the current tool directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config({ path: path.join(TOOL_ROOT, ".env") });
 
 export const PROJECT_ID = process.env.MENDIX_PROJECT_ID || "";
 if (!PROJECT_ID) {
     console.error("WARNING: MENDIX_PROJECT_ID is not set in .env");
 }
 
-// Assume this folder (mendix-cloud-mcp) is in the project root
-export const PROJECT_ROOT_PATH = path.resolve(__dirname, "../../");
-export const EXPORT_ROOT = path.join(PROJECT_ROOT_PATH, "mendix-cloud-mcp/export");
+// The Mendix Project Root is one level up from this tool folder
+export const PROJECT_ROOT_PATH = path.resolve(TOOL_ROOT, "../");
+export const EXPORT_ROOT = path.join(TOOL_ROOT, "export");
 
 export const SOURCE_THEME_DIR = path.join(PROJECT_ROOT_PATH, "theme/web");
 export const STYLING_EXPORT_DIR = path.join(EXPORT_ROOT, "Styling");

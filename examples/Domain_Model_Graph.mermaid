@@ -1,0 +1,20 @@
+classDiagram
+    class Order {
+        +Integer OrderNumber
+        +DateTime OrderDate
+        +Decimal TotalPrice
+        +Enum Status (Draft, Submitted, Paid)
+    }
+    class OrderLine {
+        +String ProductName
+        +Decimal Price
+        +Integer Quantity
+    }
+    class Customer {
+        +String Name
+        +String Email
+    }
+
+    Order "1" --> "*" OrderLine : contains
+    Order "*" --> "1" Customer : placed_by
+    Customer "1" --> "1" Address : shipping_address

@@ -21,7 +21,7 @@ export interface EntityDTO {
     _type: string;
     name: string;
     documentation: string;
-    location: { x: number; y: number };
+
     attributes: AttributeDTO[];
     generalization?: string;
     accessRules: AccessRuleDTO[];
@@ -63,6 +63,13 @@ export interface MicroflowDTO {
     returnType: string;
     parameters: { name: string; type: string }[];
     activities: string[];
+    flows: FlowDTO[];
+}
+
+export interface FlowDTO {
+    origin: string;
+    destination: string;
+    caseValue?: string;
 }
 
 export interface PageDTO {
@@ -158,7 +165,7 @@ export function mapEntity(entity: domainmodels.Entity): EntityDTO {
         _type: "Entity",
         name: entity.name,
         documentation: entity.documentation,
-        location: { x: entity.location.x, y: entity.location.y },
+
         attributes: entity.attributes.map(mapAttribute),
         generalization: (entity.generalization as any)?.generalizationQualifiedName,
         accessRules,
@@ -189,6 +196,7 @@ export function mapAssociation(assoc: domainmodels.Association): AssociationDTO 
 export function mapMicroflow(mf: microflows.Microflow): MicroflowDTO {
     const parameters: { name: string; type: string }[] = [];
     const activities: string[] = [];
+    const flows: FlowDTO[] = [];
 
     mf.objectCollection.objects.forEach(o => {
         if (o instanceof microflows.MicroflowParameterObject) {
@@ -213,13 +221,27 @@ export function mapMicroflow(mf: microflows.Microflow): MicroflowDTO {
                 } else if (action instanceof microflows.RetrieveAction) {
                     desc += `: ${(action.retrieveSource as any)?.entityQualifiedName || (action.retrieveSource as any)?.associationQualifiedName || "Source"}`;
                 } else if (action instanceof microflows.ChangeObjectAction) {
-                    const entries = (action as any).items?.map((i: any) => `${i.attributeQualifiedName?.split('.').pop()} = ${i.value?.expression || "Value"}`).join(', ') || "";
+                    const entries = (action as any).items?.map((i: any) => `${i.attribute?.name || i.attributeQualifiedName || "Unknown"} = ${i.value?.expression || "Value"}`).join(', ') || "";
                     desc += `: ${action.changeVariableName} [${entries}]`;
                 } else if (action instanceof microflows.MicroflowCallAction) {
                     desc += `: ${action.microflowCall?.microflowQualifiedName}`;
                 }
                 activities.push(desc);
             }
+        } else if (o instanceof microflows.SequenceFlow) {
+            let cv = undefined;
+            // Handle caseValues (Mendix 10+) vs caseValue (Old)
+            if ((o as any).caseValues && (o as any).caseValues.length > 0) {
+                cv = (o as any).caseValues.map((v: any) => v.value).join(" OR ");
+            } else if ((o as any).caseValue) {
+                cv = (o as any).caseValue.value;
+            }
+
+            flows.push({
+                origin: (o.origin as any)?.caption || (o.origin as any)?.name || "Start", // Simplified linkage
+                destination: (o.destination as any)?.caption || (o.destination as any)?.name || "End",
+                caseValue: cv
+            });
         }
     });
 
@@ -228,7 +250,8 @@ export function mapMicroflow(mf: microflows.Microflow): MicroflowDTO {
         documentation: mf.documentation,
         returnType: ((mf as any).microflowReturnType || (mf as any).returnType)?.structureTypeName?.split('$').pop() || "Unknown",
         parameters,
-        activities: Array.from(new Set(activities))
+        activities: Array.from(new Set(activities)),
+        flows
     };
 }
 

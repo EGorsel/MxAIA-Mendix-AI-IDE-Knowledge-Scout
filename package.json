@@ -2,10 +2,12 @@
   "name": "mxaia-mendix-ai-knowledge-scout",
   "version": "1.0.0",
   "main": "dist/server.js",
+  "bin": "dist/run_enhanced_bulk.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
+    "pkg": "pkg . --target node18-win-x64 --output dist/mxaia.exe",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -23,6 +25,7 @@
   "description": "Mendix AI IDE Knowledge Gatherer & Developer Handbook Generator",
   "devDependencies": {
     "@types/node": "^25.0.3",
+    "pkg": "^5.8.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
@@ -31,5 +34,15 @@
     "dotenv": "^17.2.3",
     "mendixmodelsdk": "^4.107.0",
     "mendixplatformsdk": "^5.2.0"
+  },
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "assets": [
+      "README.md",
+      "dist/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ]
   }
 }

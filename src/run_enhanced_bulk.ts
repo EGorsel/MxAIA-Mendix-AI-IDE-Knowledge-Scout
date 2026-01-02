@@ -4,6 +4,9 @@ import {
     mapEntity, mapMicroflow, mapPage, mapModuleSecurity, mapAssociation,
     mapEnumeration, mapConstant, mapNavigation, mapIntegrations, mapNanoflow, mapProjectSecurity
 } from "./mappers.js";
+import { RefResolver } from "./core/reference-loader.js";
+import { PseudoCodeEngine } from "./engines/pseudocode-engine.js";
+import { MermaidEngine } from "./engines/mermaid-engine.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
@@ -53,6 +56,10 @@ async function main() {
                         entities: dm.entities.map(mapEntity),
                         associations: dm.associations.map(mapAssociation)
                     }, null, 2));
+
+                    const mmEngine = new MermaidEngine();
+                    const dmDiagram = mmEngine.generateDomainModel(dm);
+                    fs.writeFileSync(path.join(moduleDir, "DomainModel.mermaid"), dmDiagram);
                 }
 
                 // Logic & UI (Parallel loads per module)
@@ -63,6 +70,21 @@ async function main() {
                     Promise.all(model.allEnumerations().filter(e => e.qualifiedName?.startsWith(`${moduleName}.`)).map(e => e.load())),
                     Promise.all(model.allConstants().filter(c => c.qualifiedName?.startsWith(`${moduleName}.`)).map(c => c.load()))
                 ]);
+
+                // Deep Reference Resolution
+                const resolver = new RefResolver(model);
+                await resolver.preloadMicroflows(mfs);
+
+                const psEngine = new PseudoCodeEngine();
+                const mmEngine = new MermaidEngine();
+
+                mfs.forEach(mf => {
+                    const code = psEngine.generate(mf);
+                    fs.writeFileSync(path.join(moduleDir, `${mf.name}.pseudocode.md`), "```python\n" + code + "\n```");
+
+                    const diag = mmEngine.generateMicroflow(mf);
+                    fs.writeFileSync(path.join(moduleDir, `${mf.name}.mermaid`), diag);
+                });
 
                 fs.writeFileSync(path.join(moduleDir, "Microflows.json"), JSON.stringify(mfs.map(mapMicroflow), null, 2));
                 fs.writeFileSync(path.join(moduleDir, "Nanoflows.json"), JSON.stringify(nfs.map(mapNanoflow), null, 2));
